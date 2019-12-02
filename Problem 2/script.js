@@ -1,9 +1,11 @@
+// Loading the data and converting it to an array of numbers
 const data = document
   .querySelector('span')
   .innerHTML.split(',')
   .map(str => Number(str));
-console.log(data);
 
+// Part 1
+// Creating an instruction class
 class Instruction {
   constructor(data, opcode, pos1, pos2, pos3) {
     this.data = data;
@@ -30,7 +32,9 @@ class Instruction {
     }
   }
 }
-let dataCopy = data.map(el => el);
+
+// Running the program
+let dataCopy = [...data];
 dataCopy[1] = 12;
 dataCopy[2] = 2;
 for (let i = 0; i < dataCopy.length; i += 4) {
@@ -44,3 +48,51 @@ for (let i = 0; i < dataCopy.length; i += 4) {
   dataCopy = currInstruction.run();
 }
 console.log(dataCopy);
+//  Part 2
+const dataCopy2 = [...data];
+
+class Program {
+  constructor(data) {
+    this.data = data;
+    this.len = data.length;
+  }
+
+  getOutput(noun, verb) {
+    this.data[1] = noun;
+    this.data[2] = verb;
+    for (let idx = 0; idx < this.len; idx += 4) {
+      let currInstruction = new Instruction(
+        this.data,
+        this.data[idx],
+        this.data[idx + 1],
+        this.data[idx + 2],
+        this.data[idx + 3],
+      );
+      this.data = currInstruction.run();
+    }
+    return this.data[0];
+  }
+  reset() {
+    this.data = document
+      .querySelector('span')
+      .innerHTML.split(',')
+      .map(str => Number(str));
+  }
+}
+
+function findInputs(program) {
+  for (let noun = 0; noun <= 99; noun++) {
+    for (let verb = 0; verb <= 99; verb++) {
+      let output = program.getOutput(noun, verb);
+      program.reset();
+      if (output === 19690720) {
+        return [noun, verb];
+      }
+    }
+  }
+}
+const prog = new Program(dataCopy2);
+
+const inputs = findInputs(prog);
+
+console.log(100 * inputs[0] + inputs[1]);
